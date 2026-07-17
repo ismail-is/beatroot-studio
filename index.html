@@ -175,12 +175,14 @@
 </head>
 <body class="min-h-screen relative">
 
-  <!-- Full width and height responsive background slideshow -->
-  <div id="bg-slideshow" class="fixed inset-0 w-full h-full -z-20 bg-[var(--soil)]"></div>
-  <div class="fixed inset-0 bg-black/50 -z-10 pointer-events-none"></div>
+  <!-- Fullscreen Background Slideshow -->
+  <div class="fixed inset-0 z-0 bg-black">
+    <div id="bg-slideshow" class="absolute inset-0 w-full h-full"></div>
+
+  </div>
 
   <div class="grain"></div>
-  <div class="soil-glow"></div>
+  <div class="soil-glow pointer-events-none"></div>
 
   <!-- floating seeds -->
   <div id="seeds" class="fixed inset-0 z-[1] pointer-events-none"></div>
@@ -216,33 +218,11 @@
       <img src="Beatroot-logo.png" alt="Beatroot Studio Logo" class="relative z-10 w-32 md:w-40 h-auto object-contain drop-shadow-2xl rounded-[4px] hover:scale-105 transition-transform duration-500 ease-out" />
     </div>
 
-    <p class="reveal font-mono text-[11px] md:text-xs tracking-[0.35em] uppercase text-[var(--blush)] mb-5" style="animation-delay:0.25s">
-     Beat Challenges at the Root.
-    </p>
 
-    <h1 class="reveal font-display text-[13vw] leading-[0.95] md:text-[6.2rem] md:leading-[0.92] font-light" style="animation-delay:0.4s">
-    
-      <span class="block italic font-medium ">coming soon</span>
-    </h1>
-
-
-
-    <!-- socials -->
-    <!-- <div class="reveal flex items-center gap-6 mt-14 font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--cream-dim)]" style="animation-delay:1s">
-      <a href="#" class="grow-underline hover:text-[var(--cream)] transition-colors">Instagram</a>
-      <span class="opacity-30">&middot;</span>
-      <a href="#" class="grow-underline hover:text-[var(--cream)] transition-colors">LinkedIn</a>
-      <span class="opacity-30">&middot;</span>
-      <a href="#" class="grow-underline hover:text-[var(--cream)] transition-colors">Email</a>
-    </div> -->
 
   </main>
 
-  <footer class="fixed bottom-5 left-0 w-full z-10 flex justify-center px-6">
-    <p class="font-mono text-[10px] tracking-[0.25em] uppercase text-[var(--cream-dim)] opacity-60">
-      &copy; 2026 Beatroot Studio
-    </p>
-  </footer>
+
 
   <script>
     // floating seed particles
@@ -262,40 +242,25 @@
       seedContainer.appendChild(s);
     }
 
-    // background slideshow (img 1 to 11)
-    const bgContainer = document.getElementById('bg-slideshow');
+    // Background Slideshow
+    const bgSlideshow = document.getElementById('bg-slideshow');
     const totalImages = 11;
-    let currentImgIdx = 1;
-    
-    // Create image elements for smooth transition
-    const img1 = document.createElement('img');
-    const img2 = document.createElement('img');
-    [img1, img2].forEach(img => {
-      img.className = 'absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out';
-      img.style.opacity = '0';
-      bgContainer.appendChild(img);
-    });
+    let currentImageIndex = 1;
 
-    let activeImg = img1;
-    let nextImg = img2;
-    activeImg.src = `img/${currentImgIdx}.jpg`;
-    activeImg.style.opacity = '1';
+    for (let i = 1; i <= totalImages; i++) {
+      const imgDiv = document.createElement('div');
+      imgDiv.className = 'absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-1000 ease-in-out';
+      imgDiv.style.backgroundImage = `url('img/${i}.jpg')`;
+      imgDiv.style.opacity = i === 1 ? '1' : '0';
+      imgDiv.id = `slide-${i}`;
+      bgSlideshow.appendChild(imgDiv);
+    }
 
     setInterval(() => {
-      currentImgIdx = currentImgIdx >= totalImages ? 1 : currentImgIdx + 1;
-      nextImg.src = `img/${currentImgIdx}.jpg`;
-      
-      // Wait for image to load before fading
-      nextImg.onload = () => {
-        nextImg.style.opacity = '1';
-        activeImg.style.opacity = '0';
-        
-        // Swap references
-        const temp = activeImg;
-        activeImg = nextImg;
-        nextImg = temp;
-      };
-    }, 5000);
+      document.getElementById(`slide-${currentImageIndex}`).style.opacity = '0';
+      currentImageIndex = currentImageIndex < totalImages ? currentImageIndex + 1 : 1;
+      document.getElementById(`slide-${currentImageIndex}`).style.opacity = '1';
+    }, 4000);
 
   </script>
 
