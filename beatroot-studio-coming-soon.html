@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Beatroot Studio — Taking Root</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Work+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wine: #7a1f3e;
+    --wine-light: #9a2f52;
+    --soil: #2a0f18;
+    --soil-deep: #1c0a11;
+    --cream: #f7f1ea;
+    --cream-dim: #cbb9b0;
+    --leaf: #7c8a56;
+    --blush: #e3c4ce;
+    --gold: #b8873c;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    background: var(--soil);
+    overflow-x: hidden;
+  }
+
+  body {
+    font-family: 'Work Sans', sans-serif;
+    color: var(--cream);
+  }
+
+  .font-display { font-family: 'Fraunces', serif; }
+  .font-mono { font-family: 'Space Mono', monospace; }
+
+  /* ---------- grain overlay ---------- */
+  .grain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- radial vignette / soil glow ---------- */
+  .soil-glow {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 100%, rgba(122,31,62,0.55) 0%, rgba(122,31,62,0) 60%),
+      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(122,31,62,0.18) 0%, rgba(122,31,62,0) 70%);
+  }
+
+  /* ---------- root svg growth ---------- */
+  .root-path {
+    fill: none;
+    stroke: var(--wine-light);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    opacity: 0.55;
+    stroke-dasharray: 1400;
+    stroke-dashoffset: 1400;
+    animation: grow 3.4s cubic-bezier(.16,.8,.2,1) forwards, sway 7s ease-in-out infinite;
+    animation-delay: var(--d, 0s), calc(var(--d, 0s) + 3.4s);
+    transform-origin: bottom center;
+  }
+  .root-path.thin { stroke-width: 0.8; opacity: 0.35; }
+
+  @keyframes grow {
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes sway {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(0.6deg); }
+  }
+
+  /* ---------- sprout dot pulse ---------- */
+  .sprout-dot {
+    animation: pulse 3.6s ease-in-out infinite;
+    transform-origin: center;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.35; transform: scale(0.9); }
+    50% { opacity: 0.9; transform: scale(1.15); }
+  }
+
+  /* ---------- floating seed particles ---------- */
+  .seed {
+    position: absolute;
+    bottom: -10px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--blush);
+    opacity: 0;
+    animation: drift linear infinite;
+  }
+  @keyframes drift {
+    0%   { transform: translate(0,0) scale(0.6); opacity: 0; }
+    8%   { opacity: 0.7; }
+    90%  { opacity: 0.4; }
+    100% { transform: translate(var(--dx,20px), -110vh) scale(1); opacity: 0; }
+  }
+
+  /* ---------- headline reveal ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    animation: revealUp 1s cubic-bezier(.16,.8,.2,1) forwards;
+  }
+  @keyframes revealUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ---------- mark ring ---------- */
+  .mark-ring {
+    animation: spin 40s linear infinite;
+    transform-origin: center;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---------- underline grow ---------- */
+  .grow-underline {
+    position: relative;
+  }
+  .grow-underline::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    height: 1px;
+    width: 0%;
+    background: currentColor;
+    transition: width 0.45s cubic-bezier(.16,.8,.2,1);
+  }
+  .grow-underline:hover::after { width: 100%; }
+
+  /* ---------- input focus root ---------- */
+  .field-wrap { position: relative; }
+  .field-wrap svg.root-line {
+    position: absolute;
+    left: 0; right: 0; bottom: -2px;
+    width: 100%; height: 14px;
+    overflow: visible;
+  }
+  .field-wrap path {
+    stroke: var(--leaf);
+    stroke-width: 1.2;
+    fill: none;
+    stroke-dasharray: 220;
+    stroke-dashoffset: 220;
+    transition: stroke-dashoffset 0.6s cubic-bezier(.16,.8,.2,1);
+  }
+  .field-wrap input:focus ~ svg.root-line path,
+  .field-wrap.filled svg.root-line path {
+    stroke-dashoffset: 0;
+  }
+
+  .btn-notify {
+    transition: transform 0.35s cubic-bezier(.16,.8,.2,1), background 0.35s ease, color 0.35s ease;
+  }
+  .btn-notify:hover { transform: translateY(-2px); }
+  .btn-notify:active { transform: translateY(0px) scale(0.98); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .root-path, .sprout-dot, .seed, .reveal, .mark-ring { animation: none !important; opacity: 1 !important; stroke-dashoffset: 0 !important; transform: none !important; }
+  }
+</style>
+</head>
+<body class="min-h-screen relative">
+
+  <div class="grain"></div>
+  <div class="soil-glow"></div>
+
+  <!-- floating seeds -->
+  <div id="seeds" class="fixed inset-0 z-[1] pointer-events-none"></div>
+
+  <!-- ambient root growth, full width bottom -->
+  <svg class="fixed bottom-0 left-0 w-full h-[70vh] z-[2] pointer-events-none" viewBox="0 0 1440 800" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+    <path class="root-path" style="--d:0.2s" d="M 220 800 C 210 680, 260 640, 240 540 C 225 470, 300 430, 290 350" />
+    <path class="root-path thin" style="--d:0.5s" d="M 240 540 C 200 500, 150 480, 130 420" />
+    <path class="root-path thin" style="--d:0.9s" d="M 290 350 C 320 300, 300 260, 340 210" />
+    <path class="root-path" style="--d:0.35s" d="M 1220 800 C 1235 690, 1180 650, 1200 550 C 1212 480, 1140 440, 1150 360" />
+    <path class="root-path thin" style="--d:0.65s" d="M 1200 550 C 1250 505, 1290 490, 1310 430" />
+    <path class="root-path thin" style="--d:1.05s" d="M 1150 360 C 1120 305, 1140 265, 1100 215" />
+    <path class="root-path thin" style="--d:0.15s" d="M 720 800 C 710 700, 740 660, 725 560" />
+    <circle class="sprout-dot" style="animation-delay:1.2s" cx="340" cy="210" r="3" fill="var(--blush)"/>
+    <circle class="sprout-dot" style="animation-delay:1.8s" cx="1100" cy="215" r="3" fill="var(--blush)"/>
+    <circle class="sprout-dot" style="animation-delay:0.9s" cx="130" cy="420" r="2.5" fill="var(--leaf)"/>
+    <circle class="sprout-dot" style="animation-delay:1.5s" cx="1310" cy="430" r="2.5" fill="var(--leaf)"/>
+  </svg>
+
+  <!-- content -->
+  <main class="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-16 text-center">
+
+    <!-- mark -->
+    <div class="reveal mb-12 relative flex items-center justify-center w-[200px] h-[200px] mx-auto" style="animation-delay:0.1s">
+      <!-- Ambient glow -->
+      <div class="absolute inset-0 bg-[var(--wine-light)] blur-[50px] opacity-30 rounded-full animate-pulse" style="animation-duration: 4s;"></div>
+      
+      <!-- Rotating dashed ring -->
+      <!-- <svg class="absolute w-[180px] h-[180px] pointer-events-none" viewBox="0 0 100 100">
+        <circle class="mark-ring" cx="50" cy="50" r="48" fill="none" stroke="var(--wine-light)" stroke-width="0.5" stroke-dasharray="4 8" opacity="0.6"/>
+      </svg>
+       -->
+      <!-- Logo -->
+      <img src="Beatroot-logo.png" alt="Beatroot Studio Logo" class="relative z-10 w-32 md:w-40 h-auto object-contain drop-shadow-2xl rounded-[4px] hover:scale-105 transition-transform duration-500 ease-out" />
+    </div>
+
+    <p class="reveal font-mono text-[11px] md:text-xs tracking-[0.35em] uppercase text-[var(--blush)] mb-5" style="animation-delay:0.25s">
+     Beat Challenges at the Root.
+    </p>
+
+    <h1 class="reveal font-display text-[13vw] leading-[0.95] md:text-[6.2rem] md:leading-[0.92] font-light" style="animation-delay:0.4s">
+    
+      <span class="block italic font-medium ">coming soon</span>
+    </h1>
+
+
+
+    <!-- socials -->
+    <!-- <div class="reveal flex items-center gap-6 mt-14 font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--cream-dim)]" style="animation-delay:1s">
+      <a href="#" class="grow-underline hover:text-[var(--cream)] transition-colors">Instagram</a>
+      <span class="opacity-30">&middot;</span>
+      <a href="#" class="grow-underline hover:text-[var(--cream)] transition-colors">LinkedIn</a>
+      <span class="opacity-30">&middot;</span>
+      <a href="#" class="grow-underline hover:text-[var(--cream)] transition-colors">Email</a>
+    </div> -->
+
+  </main>
+
+  <footer class="fixed bottom-5 left-0 w-full z-10 flex justify-center px-6">
+    <p class="font-mono text-[10px] tracking-[0.25em] uppercase text-[var(--cream-dim)] opacity-60">
+      &copy; 2026 Beatroot Studio
+    </p>
+  </footer>
+
+  <script>
+    // floating seed particles
+    const seedContainer = document.getElementById('seeds');
+    const seedCount = window.innerWidth < 640 ? 10 : 18;
+    for (let i = 0; i < seedCount; i++) {
+      const s = document.createElement('div');
+      s.className = 'seed';
+      const left = Math.random() * 100;
+      const dur = 10 + Math.random() * 10;
+      const delay = Math.random() * 14;
+      const dx = (Math.random() - 0.5) * 120;
+      s.style.left = left + 'vw';
+      s.style.setProperty('--dx', dx + 'px');
+      s.style.animationDuration = dur + 's';
+      s.style.animationDelay = delay + 's';
+      seedContainer.appendChild(s);
+    }
+
+
+  </script>
+
+</body>
+</html>
